@@ -1,0 +1,116 @@
+[%  PROCESS "opac/parts/header.tt2";
+    WRAPPER "opac/parts/myopac/prefs_base.tt2";
+    myopac_page = "prefs";
+    prefs_page = 'prefs_notify' %]
+
+<h3 class="sr-only">[% l('Notification Preferences') %]</h3>
+<form role="form" method='post'>
+    <div class="row padded-top">
+        <div class="col-md-12">
+            [% setting = 'opac.hold_notify' %]
+            <input name='[% setting %]' type="hidden"
+                [% IF ctx.user_setting_map.$setting; %] value='[% ctx.user_setting_map.$setting | html %]' [% END %]/>
+                [% IF ctx.updated_user_settings %]  
+                [% l('Updated!') %]
+            [% END %]
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1 padded-top">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center"><h5 class="panel-title">Select how you would like to recieve hold and overdue notifications</h5></div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-3 col-md-offset-1">
+                            <div class="checkbox">
+                                [% setting = 'opac.hold_notify' %]
+                                [% email_label = l('Notify by Email') %]
+                                <label for='[% setting %].email'>[% email_label %]
+                                    <input id='[% setting %].email' name='[% setting %].email' 
+                                        type="checkbox" title="[% email_label %]"
+                                        [% IF (matches = ctx.user_setting_map.$setting.match('email')); %] checked='checked' [% END %]/>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="checkbox">
+                                [%- IF allow_phone_notifications == 'true';
+                                setting = 'opac.hold_notify'; 
+                                -%]
+                                [% phone_label = l('Notify by Phone') %]
+                                <label for='[% setting %].phone'>[% phone_label %]
+                                    <input id='[% setting %].phone' name='[% setting %].phone' 
+                                    type="checkbox" title="[% phone_label %]"
+                                    [% IF (matches = ctx.user_setting_map.$setting.match('phone')); %] checked='checked' [% END %]/>
+                                </label>
+                            </div>
+                              
+                                [% setting = 'opac.default_phone' %]  
+                                <label for='[% setting %]'>[% l('Phone Number') %]</label>    
+                                                      
+                                    <input name='[% setting %]' type="text" class="form-control"
+                                    [% IF ctx.user_setting_map.$setting; %] value='[% ctx.user_setting_map.$setting | html %]' [% END %]/>                                
+                                [%- END %]
+                            
+                        </div>
+                        <div class="col-md-3 col-md-offset-1">
+                            <div class="checkbox">
+                                [%- IF ctx.get_org_setting(ctx.search_ou, 'sms.enable') == 1;
+                                   setting = 'opac.hold_notify';
+                                -%]                         
+                                [% sms_label = l('Notify by Text Message') %]
+                                <label for='[% setting %].sms'>[% sms_label %]                                
+                                    <input id='[% setting %].sms' name='[% setting %].sms' 
+                                    type="checkbox" title="[% sms_label %]"
+                                    [% IF (matches = ctx.user_setting_map.$setting.match('sms')); %] checked='checked' [% END %]/>
+                                </label>
+                            </div>
+                                [% l('Mobile Carrier') %]
+                                [% INCLUDE "opac/parts/sms_carrier_selector.tt2" sms_carrier_hide_label="true" %]
+                            
+                                [% setting = 'opac.default_sms_notify' %]
+                            
+                                <label class="padded-top" for='[% setting %]'>[% l('Mobile Number') %]</label>
+                                
+                                <input class="form-control" id='[% setting %]' name='[% setting %]' type="text"
+                                    [% IF ctx.user_setting_map.$setting; %] value='[% ctx.user_setting_map.$setting | html %]' [% END %]/>
+                                <span class="small">[% l('Hint: use the full 10 digits of your phone #, no spaces, no dashes'); %]</span>   
+                            [% END %]
+                        </div>
+                    </div>
+                </div>
+                 <div class="panel-footer"><button type='submit' value="[% l('Save') %]" class="btn btn-default">Save</button></div>
+</form>
+[% END %]
+            </div>
+        </div>
+    </div>
+
+ <!-- ##### What is this?  
+    [% IF ctx.opt_in_settings.size > 0 %]
+    <div class='user_opt_in_settings'>
+      <table>
+        <thead><tr>
+            <th>[% l('Notification Type') %]</th>
+            <th>[% l('Enabled') %]</th>
+        </tr></thead>
+        <tbody class='data_grid'>
+            [% FOR optin IN ctx.opt_in_settings %]
+                <tr>
+                    <td>[% optin.cust.label | html %]</td>
+                    <td>
+                        <input type='checkbox' name='setting' 
+                            value='[% optin.cust.name | uri %]' 
+                            title="[% optin.cust.label | html %]"
+                            [% IF optin.value %] checked='checked' [% END %]/>
+                    </td>
+                </tr>
+            [% END %]
+        </tbody>
+      </table>
+    </div>
+    [% END %]
+    
+    </div>
+</div>
+ ##### -->

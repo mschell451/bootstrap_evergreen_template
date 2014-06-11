@@ -1,0 +1,102 @@
+<h3 class="sr-only">[% l('Catalog Search') %]</h3>
+[% PROCESS "opac/parts/org_selector.tt2" %]
+   
+<!-- ######### Main search box############ --> 
+<div class="container padded-top">
+    <div class="row">
+        <div class="col-md-12 text-center">
+            [% UNLESS took_care_of_form -%]
+            <form class="form-inline" action="[% ctx.opac_root %]/results" method="get">
+            [%- END %]
+            <input type="text" id="search_box" name="query" class="form-control"  placeholder="Search books, movies and more..." aria-label="[% l('Search books, movies and more...');%]" value="[% is_advanced ? ctx.naive_query_scrub(ctx.processed_search_query) : CGI.param('query') | html %]"
+
+            <!-- ########### Main search selectors ############### -->
+                <!-- #### Type Selector (Keyword, title, author etc.) #### -->
+                <label id="search_qtype_label" for="qtype">[%- INCLUDE "opac/parts/qtype_selector.tt2" id="qtype";-%]</label>
+                <!-- #### Format Selector (Book, movie, music etc.) #### -->
+                 <label id="search_itype_label" for="search_itype_selector">
+                    [%-            
+                        IF search.basic_config.type == 'attr';
+                            INCLUDE "opac/parts/coded_value_selector.tt2"
+                                attr=search.basic_config.group none_ok=1 
+                                id='search_itype_selector'
+                                none_label=search.basic_config.none_label;
+                        ELSIF search.basic_config.type == 'filter';
+                            INCLUDE "opac/parts/filter_group_selector.tt2"
+                                filter_group=search.basic_config.group none_ok=1 
+                                id='search_itype_selector'
+                                none_label=search.basic_config.none_label;
+                        END;
+                    -%]
+                </label>
+                <!-- #### Library Selector (Consortium, branch etc.) #### -->
+
+<!-- Use this code to choose your branches automatically 
+                <label id="search_locg_label" for="search_org_selector">
+                    [%- 
+                        select_lib_label = l("Select search library");
+                        INCLUDE build_org_selector arialabel=select_lib_label 
+                          id='search_org_selector' show_loc_groups=1
+                    -%]
+                </label> -->
+<!-- Use this format if you want to give the selectors alternate names than those pulled by the above code -->
+                <label id="search_locg_label" for="search_org_selector">
+                    <select id="search_org_selector" class="form-control main-search-selector" aria-label="Select search library" name="locg">
+                        <option value="108" selected="selected" class="org_unit">All Branches</option>
+                        <option value="112" class="org_unit">Centennial</option> 
+                        <option value="113" class="org_unit">Crystal Ridge</option>
+                        <option value="114" class="org_unit">Stevensville</option> 
+                    </select>
+                </label>
+            <button id='search-submit-go' type="submit" value="[% l('Search') %]" class="btn btn-default button-size"><span class="glyphicon glyphicon-search"></span></button>
+        </div>
+    </div>
+</div>
+
+
+
+
+        
+
+    <!-- ######### Advanced search and browse links ############ --> 
+<div class="container padded-bottom">
+    <div class="row">
+        <div class="col-md-10"></div>
+        <div class="col-md-2 pull-right small">
+            <a href="[% mkurl(ctx.opac_root _ '/advanced', {}, general_search_parms.merge(expert_search_parms)) %]">[% l('Advanced Search') %]</a>
+        </div>
+    </div>
+
+
+    <!-- ######### My List Searching ############ -->
+    [% IF ctx.bookbag %]
+    <div id="search-only-bookbag-container">
+        <input type="checkbox" id="search-only-bookbag" name="bookbag"
+            value="[% ctx.bookbag.id | html %]" checked="checked" />
+        <label for="search-only-bookbag">
+            [% l('Search only within the chosen list') %]
+        </label>
+    </div>
+    [% END %]
+    [% IF is_advanced || is_special %]
+    <div>
+        <input type="hidden" name="_adv" value="1" />
+        [% IF ctx.processed_search_query OR (NOT is_advanced AND NOT is_special) %]
+        <input name='page' type='hidden' value="0" />
+        [% END %]
+    </div>
+    [%- END %]
+    [% UNLESS took_care_of_form %]</form>[% END %]
+
+<!-- ######### Refine Original Search ############ --> 
+    [% IF (is_advanced AND NOT is_special) AND CGI.param('qtype') %]
+   
+         <a href="[% mkurl(ctx.opac_root _ '/advanced') %]">[%
+            l('Refine My Original Search')
+        %]</a> 
+
+    [% END %]
+  
+ 
+</div>
+</div>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang='[% ctx.locale.replace('_', '-') %]'>
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        [% IF ctx.refresh %]
+        <meta http-equiv="refresh" content="[% ctx.refresh %]" />
+        [% ELSIF ctx.authtime AND !ctx.is_staff %]
+        <meta http-equiv="refresh" content="[% ctx.authtime %]; url=[% ctx.logout_page %]" />
+        [% END %]
+        <meta name = "viewport" content = "initial-scale = 1.0">
+
+        <link href="/css/bootstrap.css" rel="stylesheet">
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,400,300' rel='stylesheet' type='text/css'>
+
+        <title>[% l('Catalog - [_1]', ctx.page_title) %]</title>
+        <link rel="unapi-server" type="application/xml" title="unAPI" href="/opac/extras/unapi" />
+        <link type="application/opensearchdescription+xml" rel='search' title="[% l('Evergreen OpenSearch') %]" href="/opac/extras/opensearch/1.1/[% ctx.get_aou(ctx.search_ou).shortname %]/-/osd.xml" />
+        [% IF want_dojo %]
+
+        [% END %]
+
+        [% INCLUDE 'opac/parts/goog_analytics.tt2' %]
+        [% PROCESS 'opac/parts/stripe.tt2' %]
+    </head>
+    <body>
+
+[% IF ctx.is_staff %]
+[% ELSE %]
+
+<!-- ########### Header Logo and My account button ############### -->
+<div class="header-container">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5">
+                <img class="img-responsive" src="/images/header_logo.png">
+            </div>
+              
+
+
+                
+        [% IF !ctx.user %]
+        <div class="col-md-7 text-right padded-top">
+               <div class="btn btn-default button-size"><span class="glyphicon glyphicon-user"></span>
+            <a href="[% mkurl(ctx.opac_root _ '/myopac/main') %]" 
+                class="opac-button opac-button-header" id="home_myopac_link">
+                [% l('My Account') %]
+            </a>
+        </div>
+                  </div>
+        </div>
+        [% ELSE %]
+        <div class="col-md-7 text-right padded-top">
+          <div class="row">
+            <div class="col-md-12">             
+                <div class="btn btn-default button-size"><span class="glyphicon glyphicon-user"></span><a href="[% mkurl(ctx.opac_root _ '/myopac/main') %]">[% l(' My Account') %]</a></div>
+                <div class="btn btn-default button-size"><span class="glyphicon glyphicon-log-out"></span><a href="[% mkurl(ctx.opac_root _ '/logout', {}, 1) %]">[% l(' Logout') %]</a></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12 padded-top-less">   
+            <span>[%  l('[_1] [_2]', ctx.user.first_given_name, ctx.user.family_name) | html %]</span>
+                <span>|</span>
+                <span class="dash-align">
+                    <a class="dash-link" href="[% mkurl(ctx.opac_root _ '/myopac/circs')
+                        %]"><span id="dash_checked">[% ctx.user_stats.checkouts.total_out
+                        %]</span> [% l("Checked Out") %]</a>
+                </span>
+                <span class="dash_divider">|</span>
+                <span class="dash-align">
+                    <a class="dash-link" href="[% mkurl(ctx.opac_root _ '/myopac/holds', {}, ['available'])
+                        %]"><span id="dash_holds">[% ctx.user_stats.holds.total
+                        %]</span> [% l("On Hold") %]</a>
+                </span>
+                <span class="dash_divider">|</span>
+                <span class="dash-align">
+                    <a class="dash-link" href="[% mkurl(ctx.opac_root _ '/myopac/holds',
+                        {available => 1}) %]"><span id="dash_pickup">[%
+                        ctx.user_stats.holds.ready %]</span> [% l("Ready for Pickup") %]</a>
+                </span>
+                <span class="dash_divider">|</span>
+                <span class="dash-align">
+                    <a class="dash-link" href="[% mkurl(ctx.opac_root _ '/myopac/main')
+                        %]"><span id="dash_fines">[% money(ctx.user_stats.fines.balance_owed)
+                        %]</span> [% l("Fines") %]</a>
+                </span>
+            </div>
+          </div>
+          </div>
+        </div>
+   
+        [% END %]
+    
+             
+  
+    </div>
+</div>
+
+
+<!-- ########### Top Nav Bar ############### -->
+        <div class="navbar-inverse navbar-static-top" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+             
+            </div>
+            <div class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                <li><a href="/"><span class="glyphicon glyphicon-home"></span></a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Books & More <b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="http://www.fepl.ca/books">Books</a></li>
+                    <li><a href="http://www.fepl.ca/movies">Movies</a></li>
+                    <li><a href="http://www.fepl.ca/music">Music</a></li>
+                    <li><a href="http://www.fepl.ca/games">Video Games</a></li>
+                  </ul>
+                </li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Events <b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="http://www.fepl.ca/events_adults">For Adults</a></li>
+                    <li><a href="http://www.fepl.ca/events_teens">For Teens</a></li>
+                    <li><a href="http://www.fepl.ca/events_kids">For Kids</a></li>
+                    <li><a href="http://www.fepl.ca/events">All Events</a></li>
+                  </ul>
+                </li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Digital Content <b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="http://www.fepl.ca/ebooks2">eBooks</a></li>
+                    <li><a href="http://www.fepl.ca/eaudio">eAudiobooks</a></li>
+                    <li><a href="http://www.fepl.ca/emusic">eMusic</a></li>
+                    <li><a href="http://www.fepl.ca/emagazines">eMagazines</a></li>
+                    <li><a href="http://www.fepl.ca/eresources">Research</a></li>
+                    <li><a href="http://www.fepl.ca/apps">Apps & Mobility</a></li>
+                  </ul>
+                </li>
+                                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">For Kids <b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="http://www.fepl.ca/children">Books & Reading</a></li>
+                    <li><a href="http://www.fepl.ca/events_kids_page">Events & Programs</a></li>
+                    <li><a href="http://www.fepl.ca/homework">Homework Help</a></li>
+                  </ul>
+                </li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">For Teens <b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="http://www.fepl.ca/teens">Books & Reading</a></li>
+                    <li><a href="http://www.fepl.ca/events_teens_page">Events & Programs</a></li>
+                    <li><a href="http://www.fepl.ca/homework_teens">Homework Help</a></li>
+                  </ul>
+                </li>
+                <li class="active dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Catalogue <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    <li><a href="http://forterie.testenv.niagaraevergreen.ca/eg/opac/home?locg=108">Search the Catalogue</a></li>
+                    <li><a href="http://forterie.testenv.niagaraevergreen.ca/eg/opac/advanced?locg=108">Advanced Search</a></li>
+                    <li><a href="https://forterie.testenv.niagaraevergreen.ca/eg/opac/myopac/main?redirect_to=%2Feg%2Fopac%2Fmyopac%2Fmain%3Flocg%3D108">Sign In</a></li>
+                  </ul>
+                </li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Services <b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="http://www.fepl.ca/services">Room Rentals</a></li>
+                    <li><a href="http://www.fepl.ca/computers">Computers & Internet</a></li>
+                    <li><a href="http://www.fepl.ca/homebound">Homebound Delivery</a></li>
+                    <li><a href="http://www.fepl.ca/illo">Interlibrary Loan</a></li>
+                    <li><a href="http://www.fepl.ca/requests">Request for Purchase</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </div><!--/.nav-collapse -->
+          </div>
+        </div>
+
+[% END %]
+        
+        [%#Each content page needs (at minimum) an <h2> describing the content%]
+        [% content %] 
+
+<!-- ########### Footer ############### 
+<div id="footer">
+    <div class="container">some footer text</div>
+</div>-->
+        [% INCLUDE 'opac/parts/js.tt2' %]
+        [%- IF ENV.OILS_CHILIFRESH_ACCOUNT %]
+            [%- INCLUDE 'opac/parts/chilifresh.tt2' %]
+        [%- END %]
+
+            <!-- Bootstrap core JavaScript
+    ================================================== -->
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="/js/bootstrap.min.js"></script>
+
+    </body>
+</html>

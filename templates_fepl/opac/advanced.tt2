@@ -1,0 +1,35 @@
+[%- PROCESS "opac/parts/header.tt2";
+    WRAPPER "opac/parts/base.tt2";
+    ctx.page_title = l("Advanced Search");
+    pane = CGI.param("pane") || "advanced";
+    loc = ctx.search_ou;
+-%]
+
+<div class="container padded-top">
+    <div class="row">
+        <div class="col-md-12">
+            <h3 class="padded-bottom">[% l('Advanced Search') %]</h3>
+            <p class="padded-bottom">Refine your search by completing one or more of the fields below:</p>
+
+            <!-- ##### Only show staff extended advance search links (numeric, expert, browse) ##### -->
+            [% IF ctx.is_staff %]
+                <a href="[% mkurl(ctx.opac_root _ '/browse') %]">[%l('Browse the Catalog')%]</a>
+                <a href="[% mkurl('', {pane => 'advanced'}) %]" [% IF pane == 'advanced' %]class="on" [% END %]>[% l('Advanced Search') %]</a>
+                <a href="[% mkurl('', {pane => 'numeric'}) %]" [% IF pane == 'numeric' %]class="on" [% END %]>[% l('Numeric Search') %]</a>
+                <a href="[% mkurl('', {pane => 'expert'}) %]" [% IF pane == 'expert' %]class="on" [% END %]>[% l('Expert Search') %]</a>
+            [% END %]
+        
+
+            [% IF pane == 'advanced' %]
+                [% INCLUDE "opac/parts/advanced/search.tt2" %]
+            [% ELSIF pane == 'numeric' %]
+                [% INCLUDE "opac/parts/advanced/numeric.tt2" %]
+            [% ELSIF pane == 'expert' %]
+                [% INCLUDE "opac/parts/advanced/expert.tt2" %]
+            [% END %]
+          [% END %]
+
+        </div>
+    </div>
+</div>
+

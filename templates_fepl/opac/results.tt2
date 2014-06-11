@@ -1,0 +1,113 @@
+[%- PROCESS "opac/parts/header.tt2";
+    WRAPPER "opac/parts/base.tt2";
+
+    IF is_advanced || is_special;
+        ctx.page_title = l("Search Results");
+    ELSE;
+        ctx.page_title = l("Search Results: ") _ CGI.param('query') | html;
+    END;
+
+    page = CGI.param('page');
+    page = page.match('^\d+$') ? page : 0; # verify page is a sane value
+
+    page_count = ctx.page_size == 0 ? 1 : POSIX.ceil(ctx.hit_count / ctx.page_size);
+
+    PROCESS "opac/parts/misc_util.tt2";
+    PROCESS get_library;
+-%]
+
+                           
+
+<div class="container padded-vertical">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="sr-only">[% l('Search Results') %]</h2>
+            <form  class="form-inline" action="[% ctx.opac_root %]/results" method="get">
+            
+            [% INCLUDE "opac/parts/searchbar.tt2" took_care_of_form=1 %]
+
+            <h3 class="sr-only">[% l('Additional search filters and navigation') %]</h3>
+
+            <!--#### hide the header bar when displaying metarecord constituents instead of
+            skipping it altogether to allow the search form variables to propagate ##### -->
+            [% IF ctx.metarecord;
+            mr_attrs = {marc_xml => ctx.metarecord_master.marc_xml};
+            PROCESS get_marc_attrs args=mr_attrs %]
+
+                <div class="results_header_lbl">
+                    [% l('Viewing Results for Grouped Record: [_1]', 
+                    mr_attrs.title) | html %]
+                </div>
+                    [% IF CGI.param('query') %]
+                <div>
+                    <a href="[% mkurl(ctx.opac_root _ '/results', {}, ['metarecord']); %]">
+                    [% l('&#9668; Return to Grouped Search Results') %]</a>
+                </div>
+                [% END %]
+            [% END %]
+        </div>
+        <div class="row padded-top">
+            <div class="col-md-12 navbar-default navbar">
+                <div class="row">
+                    <div class="[%- IF ctx.metarecord %] hidden[% END -%]col-md-4 padded-top-less">
+                        
+                 <!--##### Show my lists       [% IF ctx.mylist.size %]
+                            [%- IF ctx.user; %]
+                            <a href="[% mkurl(ctx.opac_root _ '/myopac/lists') %]">[% l('View My List') %]</a>
+                            [%- ELSE %]
+                            <a href="[% mkurl(ctx.opac_root _ '/mylist') %]">[% l('View My List') %]</a>
+                            [%- END %]
+                        [% END %]##### -->
+                        <label class="sr-only" for="opac.result.sort">[% l('Sort by') %]</label>
+<!--##### Sort by #####-->                                
+                        [% INCLUDE "opac/parts/filtersort.tt2" value=CGI.param('sort') submit_on_change=1 %]
+<!--##### Limit to Available #####-->    
+                        <label class="checkbox-inline small" for="limit_to_available">
+                            <input type="checkbox" id="limit_to_available" name="modifier" value="available"
+                            onchange="search_modifier_onchange('available', this, true)"
+                            [% CGI.param('modifier').grep('available').size ? ' checked="checked"' : '' %] />
+                            [% l('Limit to available') %]
+                        </label>
+                        [% IF NOT metarecords.disabled %]
+<!--##### Group results #####-->                            
+                        <!-- ####Remove to show grouped results checkbox
+                        <label class="checkbox-inline">
+                            <input type="checkbox" name="modifier" value="metabib"
+                            onchange="search_modifier_onchange('metabib', this, true)"
+                            [% CGI.param('modifier').grep('metabib').size ? ' checked="checked"' : '' %] />
+                            [% l('Group Results') %]
+                        </label>
+                        -->
+                        [% END %]
+                    </div>
+                    <div class="col-md-8">
+                        [%  PROCESS "opac/parts/misc_util.tt2";
+                        USE ResolverResolver;
+                        ctx.result_start = 1 + ctx.page_size * page;
+                        ctx.result_stop = ctx.page_size * (page + 1);
+                        IF ctx.result_stop > ctx.hit_count; ctx.result_stop = ctx.hit_count; END;
+                        result_count = ctx.result_start;
+                        %]
+<!--##### Pagination #####-->
+<div class="pull-right">
+                        [% PROCESS "opac/parts/result/paginate.tt2" %]
+
+                        [% ctx.results_count_header = PROCESS results_count_header;
+                        ctx.results_count_header %]
+                        [% IF ctx.bookbag %]
+                        <div id="result-bookbag-heading">
+                            <div class="result-bookbag-name">[% ctx.bookbag.name | html %]</div>
+                            <div class="result-bookbag-description">[% ctx.bookbag.description | html %]</div>
+                        </div>
+                        [% END %]</div>
+                    </div>        
+                </div>
+            </div>
+            </form>
+            [% path = "opac/parts/result/" _
+            (ctx.records.size ? "table.tt2" : "lowhits.tt2");
+            INCLUDE $path %]
+        </div>
+    </div>
+ </div> 
+[%- END %]

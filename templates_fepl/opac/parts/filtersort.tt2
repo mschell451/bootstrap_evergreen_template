@@ -1,0 +1,16 @@
+<select class="form-control main-search-selector" id='[% id || "opac.result.sort" %]' name="[% name || 'sort' %]" [% IF submit_on_change %]onchange='this.form.submit()'[% END %]>
+    [% IF mode != 'bookbag' %]<option value=''>[% l("Best Match") %]</option>[% END %]
+    
+        <option value='titlesort'[% value == 'titlesort' ? ' selected="selected"' : '' %]>[% l("Title A to Z") %]</option>
+        <option value='titlesort.descending'[% value == 'titlesort.descending' ? ' selected="selected"' : '' %]>[% l("Title Z to A") %]</option>
+    
+    
+        <option value='authorsort'[% value == 'authorsort' ? ' selected="selected"' : '' %]>[% l("Author: A to Z") %]</option>
+        <option value='authorsort.descending'[% value == 'authorsort.descending' ? ' selected="selected"' : '' %]>[% l("Author Z to A") %]</option>
+   
+    
+        <option value='pubdate.descending'[% value == 'pubdate.descending' ? ' selected="selected"' : '' %]>[% l("Newest to Oldest") %]</option>
+        <option value='pubdate'[% value == 'pubdate' ? ' selected="selected"' : '' %]>[% l("Oldest to Newest") %]</option>
+  
+</select>
+

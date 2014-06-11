@@ -1,0 +1,35 @@
+[% IF ctx.search_result_index >= 0 %]
+<div class="row">
+    <div class="col-md-12">
+        <ul class="pagination pull-right">
+            <li><a title='[% l("Back to Search Results") %]' href='[% mkurl(ctx.opac_root _ '/results', {}, stop_parms); %]'><span class="glyphicon glyphicon-share-alt flip-horizontal"></span></a></li>
+    
+<!-- ##### Change prefered library if set [%- INCLUDE "opac/parts/pref_lib_display.tt2" %] ##### -->
+
+            [%
+            IF ctx.prev_search_record;
+            prev_args = {};
+            IF ctx.search_page > 0 AND 
+            ctx.search_result_index % ((ctx.page_size * ctx.search_page)) == 0; # first record in the page
+            prev_args.page = ctx.search_page - 1;
+            END;
+            ctx.prev_rec_url = mkurl(ctx.prev_search_record, prev_args, stop_parms);
+            %]
+            <li><a title='[% l("Previous Record") %]' href='[% ctx.prev_rec_url %]'><span class="glyphicon glyphicon-chevron-left"></span></a></li>
+            [% END %]
+
+            [% 
+            IF ctx.next_search_record;
+            next_args = {};
+            IF (ctx.page_size * (ctx.search_page + 1)) == ctx.search_result_index + 1;
+            next_args.page = ctx.search_page + 1;
+            END;
+            ctx.next_rec_url = mkurl(ctx.next_search_record, next_args, stop_parms);
+            %]
+            <li><a title='[% l("Next Record") %]' href='[% ctx.next_rec_url %]'><span class="glyphicon glyphicon-chevron-right"></span></a></li>
+        </ul>
+        [% END %]
+    </div>
+</div>
+
+[% END %]

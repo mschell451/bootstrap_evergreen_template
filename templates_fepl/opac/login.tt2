@@ -1,0 +1,9 @@
+[%- PROCESS "opac/parts/header.tt2";
+    WRAPPER "opac/parts/base.tt2";
+    ctx.page_title = l("Account Login") %]
+    <h2 class="sr-only">[% l('Account Login') %]</h2>
+ <div class="container">
+    [% INCLUDE "opac/parts/login/form.tt2" %]
+</div>
+
+[%- END %]
